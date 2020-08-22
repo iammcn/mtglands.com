@@ -386,14 +386,7 @@ Main:
     Sac Desert:
         example: Ipnu Rivulet
         text_re: >-
-            \A\{T\}\: Add \{C\}\.\R\{T\}\, Pay 1 life\: Add \{[WURGB]\}
-            \.\R\{\d\}(?:\{[WURGB]\})+\, \{T\}\, Sacrifice a Desert\: .+
-
-    Deserts:
-        matching:
-            - example: Ipnu Rivulet
-            - example: Desert of the True
-        type_re: '^Land . Desert$'
+            \A\{T\}\: Add \{C\}\.\R\{T\}\, Pay 1 life\: Add \{[WURGB]\}\.\R\{\d\}(?:\{[WURGB]\})+\, \{T\}\, Sacrifice a Desert\: .+
 
     Threshold Lands:
         example: Cephalid Coliseum
