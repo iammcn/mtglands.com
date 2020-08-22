@@ -211,15 +211,18 @@ foreach my $set (
         # scryfall.com is our base source for large images and URLs
         my $mci_num = $card_data->{number};
         my $mci_set = $set_data->{code};
+        my $scryfall_id = $card_data->{identifiers}->{scryfallId};
 
-        if ($mci_num && $mci_set) {
+        if ($mci_num && $mci_set && $card_data->{identifiers}->{scryfallId}) {
             $card_data->{infoURL}       = sprintf 'http://scryfall.com/card/%s/%s',      lc $mci_set, lc $mci_num;
-            $card_data->{lgImageURL}    = sprintf 'https://api.scryfall.com/cards/%s?format=image', $card_data->{identifiers}->{scryfallId};
-            $card_data->{localLgImgURL} = sprintf 'img/large/%s-%s.jpg',                       lc $mci_set, lc $mci_num;
+            $card_data->{lgImageURL}    = sprintf 'https://api.scryfall.com/cards/%s?format=image', lc $scryfall_id;
+            $card_data->{localLgImgURL} = sprintf 'img/large/%s.jpg',                       lc $scryfall_id;
+            $card_data->{localSmImgURL} = sprintf 'img/small/%s.jpg',                       lc $scryfall_id;
         }
         else {
-            warn "Could not find MCI number for '$name'!\n" unless $mci_num;
-            warn "Could not find MCI set for '$name'!\n"    unless $mci_set;
+            warn "Could not find MCI number for '$name'!\n"         unless $mci_num;
+            warn "Could not find MCI set for '$name'!\n"            unless $mci_set;
+            warn "Could not find scryfall id set for '$name'!\n"    unless $scryfall_id;
         }
 
         # # We use Gatherer for small images

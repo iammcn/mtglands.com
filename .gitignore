@@ -1,1 +1,8 @@
-AllSets*.json
+AllPrintings.json
+*.jpg
+*.html
+bin/
+obj/
+*.csproj.user
+.suo
+DesignTimeBuild/
