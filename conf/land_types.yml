@@ -101,9 +101,7 @@ Main:
     Manland Duals:
         example: Creeping Tar Pit
         text_re: >-
-            \A⦀name⦀ enters the battlefield tapped\.\R\{T\}\: Add \{[WURGB]\} or \{[WURGB]\} to your mana
-            pool\.\R[{}0-9WURGBC]+\: .*⦀name⦀ becomes a \d\/\d \w+ and \w+ Elemental creature.+ It\'s still
-            a land\.\z
+            \A⦀name⦀ enters the battlefield tapped\.\R\{T\}\: Add \{[WURGB]\} or \{[WURGB]\}\.\R[{}0-9WURGBC]+\: .*⦀name⦀ becomes a \d\/\d \w+ and \w+ Elemental creature.+ It\'s still a land\.\z
         alt_names:
             - Manlands
             - Elemental Lands
@@ -123,7 +121,9 @@ Main:
             Mana Pool: Dual Colors
 
     Scry Lands:
-        example: Temple of Deceit
+        matching:
+            - example: Temple of Deceit
+            - example: Temple of Silence
         tags:
             Mana Pool: Dual Colors
 
@@ -185,6 +185,13 @@ Main:
         tags:
             Mana Pool: Dual Colors
 
+    Thriving Duals:
+        example: Thriving Heath
+        tags:
+            Mana Pool: Dual Colors
+        alt_names:
+            - Jumpstart Lands
+
     Cycling Duals:
         example: Fetid Pools
         tags:
@@ -229,6 +236,7 @@ Main:
         example: Indatha Triome
         alt_names:
             - Tricycle Lands
+            - Triome Lands
 
     Lairs:
         example: Dromar's Cavern
@@ -300,8 +308,7 @@ Main:
               # Bleh, still got to specify the keywords here to prevent it from bumping into
               # the Cycling Lands.
               text_re: >-
-                \A⦀name⦀ enters the battlefield tapped\.\R\{T\}\: Add \{[WURGB]\}
-                \.\R(?:Graft|Dredge|Transmute|Hellbent) —?\s?[\{\}\dWURGB]+.+
+                \A⦀name⦀ enters the battlefield tapped\.\R\{T\}\: Add \{[WURGB]\}\.\R(?:Graft|Dredge|Transmute|Hellbent) —?\s?[\{\}\dWURGB]+.+
             - example: New Benalia
 
     'Legend(ary) Lands':
@@ -316,10 +323,9 @@ Main:
         type_re: Legendary
 
     # These are the second halves of transform enchantments, but they are still worth cataloging
-    Legendary Transformers:
+    Transformers:
         example: Azcanta, the Sunken Ruin
-        text_re: '\A\(Transforms from .+\.\)\R\{T\}\: Add \{[WURGB]\}\.\R.*\{T\}.*\: .+\z'
-        type_re: Legendary
+        text_re: '\A\(Transforms from .+\.\)\R'
 
     Mono Bounces:
         example: Coral Atoll
@@ -341,8 +347,7 @@ Main:
     Mono Manlands:
         example: Faerie Conclave
         text_re: >-
-            \A⦀name⦀ enters the battlefield tapped\.\R\{T\}\: Add \{[WURGB]\}
-            \.\R\{1\}\{[WURGB]\}\: ⦀name⦀ becomes.+
+            \A⦀name⦀ enters the battlefield tapped\.\R\{T\}\: Add \{[WURGB]\}\.\R\{1\}\{[WURGB]\}\: ⦀name⦀ becomes.+
 
     Perm Type Legendaries:
         example: Tolarian Academy
@@ -359,6 +364,18 @@ Main:
         alt_names:
             - Shadowmoor Utility Lands
 
+    Castle Lands:
+        example: Castle Ardenvale
+        # Why isn't Castle Vantress showing up? Ugh
+        text_re: >-
+            \A⦀name⦀ enters the battlefield tapped unless you control a (?:Plains|Island|Mountain|Forest|Swamp)\.\R\{T\}\: Add \{[WURGB]\}\.\R\{[12]\}\{[WURGB]\}
+
+    Basic Typed Lands:
+        matching:
+            - example: Moonring Island
+            - example: Mystic Sanctuary
+        type_re: '^Land . Plains$|^Land . Island$|^Land . Mountain$|^Land . Forest$|^Land . Swamp$'
+
     Replacement Lands:
         example: Soldevi Excavations
         text_re: >-
@@ -372,9 +389,11 @@ Main:
             \A\{T\}\: Add \{C\}\.\R\{T\}\, Pay 1 life\: Add \{[WURGB]\}
             \.\R\{\d\}(?:\{[WURGB]\})+\, \{T\}\, Sacrifice a Desert\: .+
 
-    Zendikar Landmarks:
-        # I hate using names for these, but they are so wildly different.
-        name_re: '^(?:Emeria, the Sky Ruin|Magosi, the Waterveil|Crypt of Agadeem|Valakut, the Molten Pinnacle|Oran-Rief, the Vastwood)$'
+    Deserts:
+        matching:
+            - example: Ipnu Rivulet
+            - example: Desert of the True
+        type_re: '^Land . Desert$'
 
     Threshold Lands:
         example: Cephalid Coliseum
@@ -411,6 +430,10 @@ Main:
             .+\.\z
         type_re: '^Land$'
 
+    Zendikar Landmarks:
+        # I hate using names for these, but they are so wildly different.
+        name_re: '^(?:Emeria, the Sky Ruin|Magosi, the Waterveil|Crypt of Agadeem|Valakut, the Molten Pinnacle|Oran-Rief, the Vastwood)$'
+
     Copy Lands:
         example: Vesuva
         text_re: '⦀name⦀ becomes a copy|⦀name⦀ enter the battlefield.+as a copy'
@@ -444,18 +467,20 @@ Mana Pool:
         text_re: 'Add \{[WURGB]\}, \{[WURGB]\}, or \{[WURGB]\}'
 
     Any Color:
-        text_re: 'Add \w+ mana of any.* color'
+        matching:
+            - text_re: 'Add \w+ mana .*color'
 
     Commander Colors:
         text_re: 'Add one mana of any color in your commander.s color identity'
 
-    Conditional Colors:
+    Conditional:
         matching:
             - text_re: 'Add one mana of any (?:color|type) that .+ controls? could produce'
             - text_re: 'Add one mana of that color'
             - text_re: 'Add one mana of any color chosen as you drafted cards'
             - text_re: 'Spend this mana only'
             - text_re: 'Choose a color\. Add'
+            - text_re: 'Activate this ability only if'
 
 Other:
     ETB Tapped:

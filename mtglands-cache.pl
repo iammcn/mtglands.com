@@ -40,7 +40,7 @@ my @LAND_CATEGORIES = (
 );
 my @MPG_ORDER = (
     'Manaless', 'Colorless', 'Monocolor', 'Dual Colors', 'Tri-Colors', 'Any Color',
-    'Commander Colors', 'Conditional Colors'
+    'Commander Colors', 'Conditional'
 );
 
 say "Loading color types data...";
@@ -74,12 +74,11 @@ $ua->agent('MTGLands.com/1.0 '.$ua->_agent);
 
 ##################################################################################################
 
-# NOTE: We are using the AllSets.json data because it has more fields about the sets that might be
+# NOTE: We are using the AllPrintings.json data because it has more fields about the sets that might be
 # useful.  It's larger, but is especially nice for being able to use the latest card printed.
 #
-# We're also using the Extra set, because it has legality.
 # https://mtgjson.com/downloads/all-files/
-# https://mtgjson.com/api/v5/AllSetFiles.zip or maybe https://mtgjson.com/api/v5/AllPrintings.json.zip
+# https://mtgjson.com/api/v5/AllPrintings.json.zip
 
 ### Load up the MTG JSON data ###
 
@@ -87,26 +86,28 @@ say "Loading JSON data...";
 
 # Download it if we have to
 my $json_filename = 'AllPrintings.json';
-unless (-s $json_filename && -M $json_filename < 1) {
-    my $url = "https://mtgjson.com/api/v5/$json_filename.zip";
-    print "    $url";
+if (not -e $json_filename) {
+    unless (-s $json_filename && -M $json_filename < 1) {
+        my $url = "https://mtgjson.com/api/v5/$json_filename.zip";
+        print "    $url";
 
-    my $req = HTTP::Request->new(GET => $url);
-    my $res = $ua->request($req);
+        my $req = HTTP::Request->new(GET => $url);
+        my $res = $ua->request($req);
 
-    if ($res->is_success) {
-        my $zip_data = $res->content;
+        if ($res->is_success) {
+            my $zip_data = $res->content;
 
-        print " => $json_filename";
+            print " => $json_filename";
 
-        open my $json_fh, '>', $json_filename or die "Can't open $json_filename: $!";
-        unzip \$zip_data, $json_fh            or die "Can't unzip $json_filename: $UnzipError";
-        close $json_fh;
+            open my $json_fh, '>', $json_filename or die "Can't open $json_filename: $!";
+            unzip \$zip_data, $json_fh            or die "Can't unzip $json_filename: $UnzipError";
+            close $json_fh;
 
-        print "\n";
-    }
-    else {
-        die "Can't download MTG JSON file: ".$res->status_line."\n";
+            print "\n";
+        }
+        else {
+            die "Can't download MTG JSON file: ".$res->status_line."\n";
+        }
     }
 }
 
@@ -141,15 +142,15 @@ foreach my $set (
     my $set_data = $MTG_DATA{$set};
 
     # almost all of these had paper analogues
-    next if $set_data->{onlineOnly} && $set_data->{onlineOnly} eq 'true';
+    next if $set_data->{isOnlineOnly} && $set_data->{isOnlineOnly} eq 'true';
 
-    # none of the Un-sets (Unhinged, Unglued)
-    #next if $set_data->{border} eq 'silver';
+    # none of the playtest cards
+    next if $set_data->{code} eq 'CMB1';
 
     foreach my $card_data (@{ $set_data->{cards} }) {
         next unless first { $_ eq 'Land' } @{$card_data->{types}};  # only interested in lands
         next if $card_data->{rarity} eq 'Special';                  # only interested in legal cards
-        next if $card_data->{borderColor} eq 'silver';              # no silver border cards
+        next if $card_data->{borderColor} eq 'silver';              # no Un-sets
 
         my $name = $card_data->{name};
         next if $LAND_DATA{$name};  # only add in the most recent entry
@@ -185,7 +186,7 @@ foreach my $set (
         $card_data->{banned}     = '';
 
         foreach ("vintage", "legacy", "modern", "standard", "commander", "brawl", "pioneer") {
-            my $F = substr($_, 0, 1);
+            my $F = uc substr($_, 0, 1);
 
             if ($card_data->{legalities}->{$_}) {
                 if ($card_data->{legalities}->{$_} eq "Legal") {
@@ -207,7 +208,7 @@ foreach my $set (
             ? 1 : 0
         ;
 
-        # MagicCards.info is our base source for large images and URLs
+        # scryfall.com is our base source for large images and URLs
         my $mci_num = $card_data->{number};
         my $mci_set = $set_data->{code};
 
@@ -221,19 +222,20 @@ foreach my $set (
             warn "Could not find MCI set for '$name'!\n"    unless $mci_set;
         }
 
-        # We use Gatherer for small images
-        #if ($card_data->{identifiers}->{multiverseid}) {
-        #    $card_data->{smImageURL} = sprintf 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=%u&type=card', $card_data->{identifiers}->{multiverseid};
+        # # We use Gatherer for small images
+        # if ($card_data->{identifiers}->{multiverseId}) {
+        #    $card_data->{smImageURL} = sprintf 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=%u&type=card', $card_data->{identifiers}->{multiverseId};
 
-            # still use the MCI code for the filename, if possible
+        #    # still use the MCI code for the filename, if possible
         #    $card_data->{localSmImgURL} = ($mci_num && $mci_set) ?
         #        sprintf('img/small/%s-%s.jpg', lc $mci_set, lc $mci_num) :
-        #        sprintf('img/small/multi-%u.jpg', $card_data->{identifiers}->{multiverseid})
+        #        sprintf('img/small/multi-%u.jpg', $card_data->{identifiers}->{multiverseId})
         #    ;
-        #}
-        #else {
+        # }
+        # else {
+        #     warn Dumper $card_data->{identifiers};
         #    warn "Could not find MultiverseID for '$name'!\n";
-        #}
+        # }
 
         # Unfortunate manual additions/corrections for images
         #$card_data->{localLgImgURL} = $card_data->{localSmImgURL} if $name eq 'Path of Ancestry';
@@ -896,7 +898,7 @@ END_HTML
     $html .= <<'END_HTML';
 </div>
 
-<h2>Mana Pool Generators</h2>
+<h2>Mana Generators</h2>
 
 <div class="container">
 <div class="row indextags">
@@ -988,7 +990,6 @@ END_HTML
         <li><a href="https://www.youtube.com/watch?v=MDc4v7sDaQY">2 Color Decks</a></li>
     </ul>
     <li><a href="http://www.edhrec.com/">EDHREC</a></li>
-    <li><a href="http://www.edhgenerals.com/">EDH Generals</a></li>
     <li><a href="http://manabasecrafter.com/">Manabase Crafter</a>, a similar but different kind of
     land/manabase lookup reference</li>
     <li><a href="https://mtgjson.com/">MTG JSON</a>, used to acquire all of the information on this site</li>
