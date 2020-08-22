@@ -9,10 +9,14 @@ use Date::Parse;
 use Data::Dumper;
 use File::Copy;
 use HTML::Escape   qw( escape_html );
+# https://metacpan.org/pod/HTML::Escape
 use HTTP::Request;
 use IO::Uncompress::Unzip qw( unzip $UnzipError );
 use JSON::XS;
 use List::AllUtils qw( first uniq any none sum max );
+# https://metacpan.org/pod/List::AllUtils
+# https://metacpan.org/release/List-SomeUtils
+# https://metacpan.org/pod/List::UtilsBy
 use LWP;
 use Scalar::Util   qw( weaken );
 use YAML::XS       qw( LoadFile );
@@ -25,7 +29,7 @@ binmode(STDERR, ":utf8");
 ##################################################################################################
 
 ### XXX: This is a (slight) security risk.  Move these outta here...
-my $BASE_DIR  = '/var/www/mtglands.com';
+my $BASE_DIR  = '.';
 my $WWW_CHOWN = 'www-data:www-data';
 my $WWW_CHMOD = 0660;
 
@@ -74,15 +78,17 @@ $ua->agent('MTGLands.com/1.0 '.$ua->_agent);
 # useful.  It's larger, but is especially nice for being able to use the latest card printed.
 #
 # We're also using the Extra set, because it has legality.
+# https://mtgjson.com/downloads/all-files/
+# https://mtgjson.com/api/v5/AllSetFiles.zip or maybe https://mtgjson.com/api/v5/AllPrintings.json.zip
 
 ### Load up the MTG JSON data ###
 
 say "Loading JSON data...";
 
 # Download it if we have to
-my $json_filename = 'AllSets-x.json';
+my $json_filename = 'AllPrintings.json';
 unless (-s $json_filename && -M $json_filename < 1) {
-    my $url = "https://mtgjson.com/json/$json_filename.zip";
+    my $url = "https://mtgjson.com/api/v5/$json_filename.zip";
     print "    $url";
 
     my $req = HTTP::Request->new(GET => $url);
@@ -112,14 +118,14 @@ my $raw_json = <$json_fh>;
 close $json_fh;
 
 say "Decoding JSON data...";
-my %MTG_DATA = %{ $json->decode($raw_json) };
+my %MTG_DATA = %{ $json->decode($raw_json)->{data} };
 undef $raw_json;
 
 ### Find lands ###
 
 # This just adds in epoch dates here for sorting
 foreach my $set_data (values %MTG_DATA) {
-    $set_data->{releaseDateEpoch} = str2time($set_data->{releaseDate});
+    $set_data->{releaseDate} = str2time($set_data->{releaseDate});
 }
 
 my %LAND_DATA;
@@ -127,7 +133,7 @@ my %LAND_DATA;
 say "Searching for lands...";
 foreach my $set (
     # sort by release date
-    sort { $MTG_DATA{$b}{releaseDateEpoch} <=> $MTG_DATA{$a}{releaseDateEpoch} }
+    sort { $MTG_DATA{$b}{releaseDate} <=> $MTG_DATA{$a}{releaseDate} }
     # in cases of ties, favor promos over standard sets
     sort { ($MTG_DATA{$a}{type} =~ /core|expansion|reprint/) <=> ($MTG_DATA{$b}{type} =~ /core|expansion|reprint/) }
     keys %MTG_DATA
@@ -138,11 +144,12 @@ foreach my $set (
     next if $set_data->{onlineOnly} && $set_data->{onlineOnly} eq 'true';
 
     # none of the Un-sets (Unhinged, Unglued)
-    next if $set_data->{border} eq 'silver';
+    #next if $set_data->{border} eq 'silver';
 
     foreach my $card_data (@{ $set_data->{cards} }) {
         next unless first { $_ eq 'Land' } @{$card_data->{types}};  # only interested in lands
         next if $card_data->{rarity} eq 'Special';                  # only interested in legal cards
+        next if $card_data->{borderColor} eq 'silver';              # no silver border cards
 
         my $name = $card_data->{name};
         next if $LAND_DATA{$name};  # only add in the most recent entry
@@ -156,8 +163,8 @@ foreach my $set (
         #}
 
         # Unfortunate manual additions/corrections
-        $card_data->{mciNumber} = 315 if $name eq "Teferi's Isle";
-        $card_data->{mciNumber} =~ s!.+/(\d\w*)$!$1! if $card_data->{mciNumber} && $card_data->{mciNumber} =~ m!/!;
+        #$card_data->{mciNumber} = 315 if $name eq "Teferi's Isle";
+        #$card_data->{mciNumber} =~ s!.+/(\d\w*)$!$1! if $card_data->{mciNumber} && $card_data->{mciNumber} =~ m!/!;
 
         # Extra data to add
         $card_data->{setData} = $set_data;
@@ -177,33 +184,36 @@ foreach my $set (
         $card_data->{restricted} = '';
         $card_data->{banned}     = '';
 
-        if ($card_data->{legalities}) {
-            foreach my $legal_hash (
-                sort { $a->{format} cmp $b->{format} }
-                @{ $card_data->{legalities} }
-            ) {
-                # only look at formats people actually care about
-                next unless $legal_hash->{format} =~ /^(?:Vintage|Legacy|Modern|Standard|Commander)$/;
+        foreach ("vintage", "legacy", "modern", "standard", "commander", "brawl", "pioneer") {
+            my $F = substr($_, 0, 1);
 
-                my $F = substr($legal_hash->{format}, 0, 1);
-                $card_data->{ lc $legal_hash->{legality} } .= $F;
+            if ($card_data->{legalities}->{$_}) {
+                if ($card_data->{legalities}->{$_} eq "Legal") {
+                    $card_data->{legal} .= $F;
+                }
+                if ($card_data->{legalities}->{$_} eq "Restricted") {
+                    $card_data->{restricted} .= $F;
+                }
+                if ($card_data->{legalities}->{$_} eq "Banned") {
+                    $card_data->{banned} .= $F;
+                }
             }
         }
 
         # Mark any new cards
         $card_data->{isNew} =
-            $set_data->{releaseDateEpoch} >= (time - 365 * 24*60*60) &&  # released at most a year ago
+            $set_data->{releaseDate} >= (time - 365 * 24*60*60) &&  # released at most a year ago
             scalar @{$card_data->{printings}} == 1                       # only in this set
             ? 1 : 0
         ;
 
         # MagicCards.info is our base source for large images and URLs
-        my $mci_num = $card_data->{mciNumber} || $card_data->{number};
-        my $mci_set = $set_data->{magicCardsInfoCode} || $set;
+        my $mci_num = $card_data->{number};
+        my $mci_set = $set_data->{code};
 
         if ($mci_num && $mci_set) {
-            $card_data->{infoURL}       = sprintf 'http://magiccards.info/%s/en/%s.html',      lc $mci_set, lc $mci_num;
-            $card_data->{lgImageURL}    = sprintf 'http://magiccards.info/scans/en/%s/%s.jpg', lc $mci_set, lc $mci_num;
+            $card_data->{infoURL}       = sprintf 'http://scryfall.com/card/%s/%s',      lc $mci_set, lc $mci_num;
+            $card_data->{lgImageURL}    = sprintf 'https://api.scryfall.com/cards/%s?format=image', $card_data->{identifiers}->{scryfallId};
             $card_data->{localLgImgURL} = sprintf 'img/large/%s-%s.jpg',                       lc $mci_set, lc $mci_num;
         }
         else {
@@ -212,21 +222,21 @@ foreach my $set (
         }
 
         # We use Gatherer for small images
-        if ($card_data->{multiverseid}) {
-            $card_data->{smImageURL} = sprintf 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=%u&type=card', $card_data->{multiverseid};
+        #if ($card_data->{identifiers}->{multiverseid}) {
+        #    $card_data->{smImageURL} = sprintf 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=%u&type=card', $card_data->{identifiers}->{multiverseid};
 
             # still use the MCI code for the filename, if possible
-            $card_data->{localSmImgURL} = ($mci_num && $mci_set) ?
-                sprintf('img/small/%s-%s.jpg', lc $mci_set, lc $mci_num) :
-                sprintf('img/small/multi-%u.jpg', $card_data->{multiverseid})
-            ;
-        }
-        else {
-            warn "Could not find MultiverseID for '$name'!\n";
-        }
+        #    $card_data->{localSmImgURL} = ($mci_num && $mci_set) ?
+        #        sprintf('img/small/%s-%s.jpg', lc $mci_set, lc $mci_num) :
+        #        sprintf('img/small/multi-%u.jpg', $card_data->{identifiers}->{multiverseid})
+        #    ;
+        #}
+        #else {
+        #    warn "Could not find MultiverseID for '$name'!\n";
+        #}
 
         # Unfortunate manual additions/corrections for images
-        $card_data->{localLgImgURL} = $card_data->{localSmImgURL} if $name eq 'Path of Ancestry';
+        #$card_data->{localLgImgURL} = $card_data->{localSmImgURL} if $name eq 'Path of Ancestry';
     }
 }
 
@@ -410,51 +420,51 @@ foreach my $name (sort keys %LAND_DATA) {
 
 ### Download images
 
-say "Downloading images...";
+# say "Downloading images...";
 
-foreach my $name (sort keys %LAND_DATA) {
-    my $land_data = $LAND_DATA{$name};
+# foreach my $name (sort keys %LAND_DATA) {
+#     my $land_data = $LAND_DATA{$name};
 
-    my $tried_to_download = 0;
-    foreach my $prefix (qw/ lg sm /) {
-        my $local_url  = $land_data->{'local'.ucfirst($prefix).'ImgURL'};
-        my $remote_url = $land_data->{"${prefix}ImageURL"};
-        next unless $local_url && $remote_url;
+#     my $tried_to_download = 0;
+#     foreach my $prefix (qw/ lg sm /) {
+#         my $local_url  = $land_data->{'local'.ucfirst($prefix).'ImgURL'};
+#         my $remote_url = $land_data->{"${prefix}ImageURL"};
+#         next unless $local_url && $remote_url;
 
-        my $filename = "$BASE_DIR/$local_url";
-        next if -s $filename;
+#         my $filename = "$BASE_DIR/$local_url";
+#         next if -s $filename;
 
-        $tried_to_download = 1;
-        printf "    %-50s", $remote_url;
-        my $req = HTTP::Request->new(GET => $remote_url);
-        my $res = $ua->request($req);
+#         $tried_to_download = 1;
+#         printf "    %-50s", $remote_url;
+#         my $req = HTTP::Request->new(GET => $remote_url);
+#         my $res = $ua->request($req);
 
-        if ($res->is_success) {
-            print " => $filename";
+#         if ($res->is_success) {
+#             print " => $filename";
 
-            open my $jpeg_fh, '>', $filename or die "Can't open $filename: $!";
-            print $jpeg_fh $res->content;
-            close $jpeg_fh;
-            chmodown($filename);
+#             open my $jpeg_fh, '>', $filename or die "Can't open $filename: $!";
+#             print $jpeg_fh $res->content;
+#             close $jpeg_fh;
+#             chmodown($filename);
 
-            print "\n";
-        }
-        else {
-            print "\n";
-            warn "Can't download $remote_url: ".$res->status_line."\n";
+#             print "\n";
+#         }
+#         else {
+#             print "\n";
+#             warn "Can't download $remote_url: ".$res->status_line."\n";
 
-            # Try to use the other as an alternate
-            if    ($prefix eq 'lg') {
-                $land_data->{'localLgImgURL'} = $land_data->{'localSmImgURL'};
-            }
-            elsif ($prefix eq 'sm') {
-                $land_data->{'localSmImgURL'} = $land_data->{'localLgImgURL'};
-            }
-        }
-    }
+#             # Try to use the other as an alternate
+#             if    ($prefix eq 'lg') {
+#                 $land_data->{'localLgImgURL'} = $land_data->{'localSmImgURL'};
+#             }
+#             elsif ($prefix eq 'sm') {
+#                 $land_data->{'localSmImgURL'} = $land_data->{'localLgImgURL'};
+#             }
+#         }
+#     }
 
-    sleep 1 if $tried_to_download;  # try to be a friendly spider
-}
+#     sleep 1 if $tried_to_download;  # try to be a friendly spider
+# }
 
 ### Build HTML pages based on the lesser categories, with the Main categories looped on each page
 
@@ -543,13 +553,14 @@ exit;
 ##################################################################################################
 
 sub chmodown {
-    my ($filename) = @_;
-    my ($uid, $gid) = split /:/, $WWW_CHOWN, 2;
-    $uid = getpwnam($uid);
-    $gid = getgrnam($gid);
+    # excluded because Windows
+    #my ($filename) = @_;
+    #my ($uid, $gid) = split /:/, $WWW_CHOWN, 2;
+    #$uid = getpwnam($uid);
+    #$gid = getgrnam($gid);
 
-    chmod $WWW_CHMOD, $filename or die "Can't chmod $filename: $!";
-    chown $uid, $gid, $filename or die "Can't chown $filename: $!";
+    #chmod $WWW_CHMOD, $filename or die "Can't chmod $filename: $!";
+    #chown $uid, $gid, $filename or die "Can't chown $filename: $!";
 }
 
 sub sort_mpg_avg {
@@ -766,7 +777,7 @@ sub build_type_html_body {
 
     foreach my $name (
         sort { sort_color_id($LAND_DATA{$a}{colorIdStr}) <=> sort_color_id($LAND_DATA{$b}{colorIdStr}) }
-        sort { $LAND_DATA{$b}{setData}{releaseDateEpoch} <=> $LAND_DATA{$a}{setData}{releaseDateEpoch} }
+        sort { $LAND_DATA{$b}{setData}{releaseDate} <=> $LAND_DATA{$a}{setData}{releaseDate} }
         sort { $a cmp $b }
         keys %{ $type_data->{cards} }
     ) {

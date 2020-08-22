@@ -27,6 +27,8 @@ Main:
 
     Pain Lands:
         example: Underground River
+        tags:
+            Mana Pool: Dual Colors
 
     Manaless Filters:
         example: Darkwater Catacombs
@@ -57,6 +59,8 @@ Main:
         alt_names:
             - Shadow Lands
             - Hand Lands
+        tags:
+            Mana Pool: Dual Colors
 
     Storage Duals:
         example: Dreadship Reef
@@ -70,10 +74,12 @@ Main:
         text_re: >-
             \AAs ⦀name⦀ enters the battlefield\, you may reveal an? \w+ card from your hand\.
             If you don\'t\, ⦀name⦀ enters the battlefield tapped\.\R\{T\}\: Add \{[WURGB]\}
-            or \{[WURGB]\} to your mana pool\.\z
+            or \{[WURGB]\}\.\z
         alt_names:
             - Tribal Lands
             - Lord Lands
+        tags:
+            Mana Pool: Dual Colors
 
     Filter Duals:
         example: Sunken Ruins
@@ -101,41 +107,62 @@ Main:
         alt_names:
             - Manlands
             - Elemental Lands
+        tags:
+            Mana Pool: Dual Colors
 
     Check Lands:
         example: Drowned Catacomb
         alt_names:
             - Buddy Lands
+        tags:
+            Mana Pool: Dual Colors
 
     Fast Lands:
         example: Darkslick Shores
+        tags:
+            Mana Pool: Dual Colors
 
     Scry Lands:
         example: Temple of Deceit
+        tags:
+            Mana Pool: Dual Colors
 
     Battle Lands:
         example: Sunken Hollow
         alt_names:
             - BFZ Check Lands
             - Tango Lands
+        tags:
+            Mana Pool: Dual Colors
+
+    Battlebond Lands:
+        example: Bountiful Promenade 
+        tags:
+            Mana Pool: Dual Colors       
 
     Tap Duals:
         example: Salt Marsh
         alt_names:
             - Taplands
         type_re: '^Land$'
+        tags:
+            Mana Pool: Dual Colors
 
     Snow Duals:
         example: Frost Marsh
         alt_names:
             - Snow Taplands
         type_re: '^Snow Land'
+        tags:
+            Mana Pool: Dual Colors
 
     Gates:
         example: Dimir Guildgate
         alt_names:
             - Gate Duals
         type_re: '^Land . Gate'
+        tags:
+            Mana Pool: Dual Colors
 
     Depletion Duals:
         example: Land Cap
@@ -160,6 +187,19 @@ Main:
 
     Cycling Duals:
         example: Fetid Pools
+        tags:
+            Mana Pool: Dual Colors
+
+    Horizon Duals:
+        example: Horizon Canopy
+        tags:
+            Mana Pool: Dual Colors
+
+    Futuresight Duals:
+        # I hate using names for these, but they are so wildly different.
+        name_re: '^(?:Grove of the Burnwillows|Nimbus Maze|River of Tears)$'
+        tags:
+            Mana Pool: Dual Colors
 
     # Fetches
     Slow Fetches:
@@ -179,17 +219,16 @@ Main:
         # missing.
         example: Krosan Verge
 
-    Futuresight Duals:
-        # I hate using names for these, but they are so wildly different.
-        name_re: '^(?:Grove of the Burnwillows|Horizon Canopy|Nimbus Maze|River of Tears)$'
-        tags:
-            Mana Pool: Dual Colors
-
     # Tri-Color Land
     Tap Tri-Lands:
         example: Crumbling Necropolis
         alt_names:
             - Shard Lands
+
+    Cycling Tri-Lands:
+        example: Indatha Triome
+        alt_names:
+            - Tricycle Lands
 
     Lairs:
         example: Dromar's Cavern
@@ -225,7 +264,7 @@ Main:
     # Other special monocolor lands
     Artifact Lands:
         example: Seat of the Synod
-        text_re: '.*\{T\}\: Add \{[WURGBC]\} to your mana pool\.\z'
+        text_re: '.*\{T\}\: Add \{[WURGBC]\}\.\z'
         type_re: '^Artifact Land$'
 
     Cycling Lands:
@@ -243,14 +282,14 @@ Main:
         example: Halimar Depths
         text_re: >-
             \A⦀name⦀ enters the battlefield tapped\.\RWhen ⦀name⦀ enters the battlefield\,
-            .+\.\R\{T\}\: Add \{[WURGB]\} to your mana pool\.\z
+            .+\.\R\{T\}\: Add \{[WURGB]\}\.\z
 
     Hideaways:
         example: Shelldock Isle
         text_re: >-
             \AHideaway \(This land enters the battlefield tapped\. When it does\, look at the top four
             cards of your library\, exile one face down\, then put the rest on the bottom of your
-            library\.\)\R\{T\}\: Add \{[WURGB]\} to your mana pool\.\R\{[WURGB]\}\, \{T\}\: You may play
+            library\.\)\R\{T\}\: Add \{[WURGB]\}\.\R\{[WURGB]\}\, \{T\}\: You may play
             the exiled card without paying its mana cost if.+
 
     Keyword Lands:
@@ -261,25 +300,25 @@ Main:
               # Bleh, still got to specify the keywords here to prevent it from bumping into
               # the Cycling Lands.
               text_re: >-
-                \A⦀name⦀ enters the battlefield tapped\.\R\{T\}\: Add \{[WURGB]\} to your mana
-                pool\.\R(?:Graft|Dredge|Transmute|Hellbent) —?\s?[\{\}\dWURGB]+.+
+                \A⦀name⦀ enters the battlefield tapped\.\R\{T\}\: Add \{[WURGB]\}
+                \.\R(?:Graft|Dredge|Transmute|Hellbent) —?\s?[\{\}\dWURGB]+.+
             - example: New Benalia
 
     'Legend(ary) Lands':
         example: Tolaria
-        text_re: '\A\{T\}\: Add \{[WURGB]\} to your mana pool\.\R\{T\}\: .+\z'
+        text_re: '\A\{T\}\: Add \{[WURGB]\}\.\R\{T\}\: .+\z'
         type_re: Legendary
         printingStr_re: LEG
 
     Legendary Assist Lands:
         example: "Minamo, School at Water's Edge"
-        text_re: '\A\{T\}\: Add \{[WURGB]\} to your mana pool\.\R\{[WURGB]\}\, \{T\}\: .+legendary.+\z'
+        text_re: '\A\{T\}\: Add \{[WURGB]\}\.\R\{[WURGB]\}\, \{T\}\: .+legendary.+\z'
         type_re: Legendary
 
     # These are the second halves of transform enchantments, but they are still worth cataloging
     Legendary Transformers:
         example: Azcanta, the Sunken Ruin
-        text_re: '\A\(Transforms from .+\.\)\R\{T\}\: Add \{[WURGB]\} to your mana pool\.\R.*\{T\}.*\: .+\z'
+        text_re: '\A\(Transforms from .+\.\)\R\{T\}\: Add \{[WURGB]\}\.\R.*\{T\}.*\: .+\z'
         type_re: Legendary
 
     Mono Bounces:
@@ -302,18 +341,18 @@ Main:
     Mono Manlands:
         example: Faerie Conclave
         text_re: >-
-            \A⦀name⦀ enters the battlefield tapped\.\R\{T\}\: Add \{[WURGB]\} to your mana
-            pool\.\R\{1\}\{[WURGB]\}\: ⦀name⦀ becomes.+
+            \A⦀name⦀ enters the battlefield tapped\.\R\{T\}\: Add \{[WURGB]\}
+            \.\R\{1\}\{[WURGB]\}\: ⦀name⦀ becomes.+
 
     Perm Type Legendaries:
         example: Tolarian Academy
-        text_re: '\A\{T\}\: Add \{[WURGB]\} to your mana pool for each .+ you control\.\z'
+        text_re: '\A\{T\}\: Add \{[WURGB]\} for each .+ you control\.\z'
         type_re: Legendary
 
     Perm Utility Lands:
         example: Moonring Island
         text_re: >-
-            \A\(\{T\}\: Add \{[WURGB]\} to your mana pool\.\)\R⦀name⦀ enters the battlefield tapped\.\R\{[WURGB]\}\,
+            \A\(\{T\}\: Add \{[WURGB]\}\.\)\R⦀name⦀ enters the battlefield tapped\.\R\{[WURGB]\}\,
             \{T\}\: .+\. Activate this ability only if you control two or more
             (?:[Ww]hite|[Bb]lue|[Bb]lack|[Rr]ed|[Gg]reen) permanents\.\z
         type_re: 'Plains|Island|Mountain|Forest|Swamp'
@@ -325,13 +364,13 @@ Main:
         text_re: >-
             \AIf ⦀name⦀ would enter the battlefield\, sacrifice an? (?:untapped )?(?:Plains|Island|Mountain|Forest|Swamp)
             instead\. If you do\, put ⦀name⦀ onto the battlefield\. If you don\'t\, put it into its owner\'s
-            graveyard\.\R\{T\}\: Add [\{\}WURGBC]*\{[WURGB]\} to your mana pool\.\R.+
+            graveyard\.\R\{T\}\: Add [\{\}WURGBC]*\{[WURGB]\}\.\R.+
 
     Sac Desert:
         example: Ipnu Rivulet
         text_re: >-
-            \A\{T\}\: Add \{C\} to your mana pool\.\R\{T\}\, Pay 1 life\: Add \{[WURGB]\} to your mana
-            pool\.\R\{\d\}(?:\{[WURGB]\})+\, \{T\}\, Sacrifice a Desert\: .+
+            \A\{T\}\: Add \{C\}\.\R\{T\}\, Pay 1 life\: Add \{[WURGB]\}
+            \.\R\{\d\}(?:\{[WURGB]\})+\, \{T\}\, Sacrifice a Desert\: .+
 
     Zendikar Landmarks:
         # I hate using names for these, but they are so wildly different.
@@ -340,14 +379,14 @@ Main:
     Threshold Lands:
         example: Cephalid Coliseum
         text_re: >-
-            \A\{T\}\: Add \{[WURGB]\} to your mana pool\. ⦀name⦀ deals 1 damage to you\.\RThreshold \—
+            \A\{T\}\: Add \{[WURGB]\}\. ⦀name⦀ deals 1 damage to you\.\RThreshold \—
             \{[WURGB]\}\, \{T\}\, Sacrifice ⦀name⦀\:.+
 
     # Special colorless lands
     Blighted Lands:
         example: Blighted Cataract
         text_re: >-
-            \A\{T\}\: Add \{C\} to your mana pool\.\R\{\d\}\{[WURGB]\}\, \{T\}\, Sacrifice ⦀name⦀\:.+
+            \A\{T\}\: Add \{C\}\.\R\{\d\}\{[WURGB]\}\, \{T\}\, Sacrifice ⦀name⦀\:.+
 
     Eldrazi Lands:
         example: Eldrazi Temple
@@ -358,7 +397,7 @@ Main:
     Innistrad Landmarks:
         example: Nephalia Drownyard
         text_re: >-
-            \A\{T\}\: Add \{C\} to your mana pool\.\R(?:\{[\dX]\})?\{[WURGB]\}\{[WURGB]\}(?:\, \{T\})?(?:\, .+)?\:
+            \A\{T\}\: Add \{C\}\.\R(?:\{[\dX]\})?\{[WURGB]\}\{[WURGB]\}(?:\, \{T\})?(?:\, .+)?\:
             .+\.\z
         printingStr_re: (?:ISD|DKA|AVR)
         type_re: '^Land$'
@@ -368,7 +407,7 @@ Main:
         example: Duskmantle, House of Shadow
         name_re: ', '
         text_re: >-
-            \A\{T\}\: Add \{C\} to your mana pool\.\R(?:\{\d\})?\{[WURGB]\}\{[WURGB]\}(?:\, \{T\})?\:
+            \A\{T\}\: Add \{C\}\.\R(?:\{\d\})?\{[WURGB]\}\{[WURGB]\}(?:\, \{T\})?\:
             .+\.\z
         type_re: '^Land$'
 
@@ -384,39 +423,39 @@ Main:
 Mana Pool:
     Manaless:
         text_re: '.*'
-        text_re_neg: 'Add.* to your mana pool'
+        text_re_neg: 'Add.*'
         type_re_neg: '^Basic Land$|Plains|Island|Mountain|Forest|Swamp'
 
     Colorless:
         matching:
-            - text_re: 'Add (?:\{\w\})?(?:\{C\}){1,}(?:\{\w\})? to your mana pool'
+            - text_re: 'Add (?:\{\w\})?(?:\{C\}){1,}(?:\{\w\})?'
             # no basic land type, for Wastes
             - type_re: '^Basic Land$'
 
     Monocolor:
         matching:
-            - text_re: 'Add (?:\{C\})?\{([WURGB])\}(?:\{(?:C|\1)\})? to your mana pool'
+            - text_re: 'Add (?:\{C\})?\{([WURGB])\}(?:\{(?:C|\1)\})?'
             - type_re: '^Basic (?:Snow )?Land — (?:Plains|Island|Mountain|Forest|Swamp)$'
 
     Dual Colors:
-        text_re: 'Add \{[WURGB]\} or \{[WURGB]\} to your mana pool'
+        text_re: 'Add \{[WURGB]\} or \{[WURGB]\}'
 
     Tri-Colors:
-        text_re: 'Add \{[WURGB]\}, \{[WURGB]\}, or \{[WURGB]\} to your mana pool'
+        text_re: 'Add \{[WURGB]\}, \{[WURGB]\}, or \{[WURGB]\}'
 
     Any Color:
-        text_re: 'Add \w+ mana of any.* color to your mana pool'
+        text_re: 'Add \w+ mana of any.* color'
 
     Commander Colors:
-        text_re: 'Add to your mana pool one mana of any color in your commander.s color identity'
+        text_re: 'Add one mana of any color in your commander.s color identity'
 
     Conditional Colors:
         matching:
-            - text_re: 'Add to your mana pool one mana of any (?:color|type) that .+ controls? could produce'
-            - text_re: 'Add one mana of that color to your mana pool'
-            - text_re: 'Add one mana to your mana pool of any color chosen as you drafted cards'
+            - text_re: 'Add one mana of any (?:color|type) that .+ controls? could produce'
+            - text_re: 'Add one mana of that color'
+            - text_re: 'Add one mana of any color chosen as you drafted cards'
             - text_re: 'Spend this mana only'
-            - text_re: 'Choose a color\. Add to your mana pool'
+            - text_re: 'Choose a color\. Add'
 
 Other:
     ETB Tapped:
