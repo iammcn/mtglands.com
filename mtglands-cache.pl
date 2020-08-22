@@ -208,40 +208,29 @@ foreach my $set (
             ? 1 : 0
         ;
 
+        #$card_data->{scryfallId} = $card_data->{identifiers}->{scryfallId};
+
         # scryfall.com is our base source for large images and URLs
         my $mci_num = $card_data->{number};
         my $mci_set = $set_data->{code};
-        my $scryfall_id = $card_data->{identifiers}->{scryfallId};
 
-        if ($mci_num && $mci_set && $card_data->{identifiers}->{scryfallId}) {
-            $card_data->{infoURL}       = sprintf 'http://scryfall.com/card/%s/%s',      lc $mci_set, lc $mci_num;
-            $card_data->{lgImageURL}    = sprintf 'https://api.scryfall.com/cards/%s?format=image', lc $scryfall_id;
-            $card_data->{localLgImgURL} = sprintf 'img/large/%s.jpg',                       lc $scryfall_id;
-            $card_data->{localSmImgURL} = sprintf 'img/small/%s.jpg',                       lc $scryfall_id;
+        # ensure mci_num only contains valid characters (can contin '*')
+        if ($mci_num =~ /([0-9a-zA-Z]+)/g) {
+            $mci_num = $1;
         }
         else {
-            warn "Could not find MCI number for '$name'!\n"         unless $mci_num;
-            warn "Could not find MCI set for '$name'!\n"            unless $mci_set;
-            warn "Could not find scryfall id set for '$name'!\n"    unless $scryfall_id;
+            warn "Invalid number '$mci_num'!\n";
         }
 
-        # # We use Gatherer for small images
-        # if ($card_data->{identifiers}->{multiverseId}) {
-        #    $card_data->{smImageURL} = sprintf 'http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=%u&type=card', $card_data->{identifiers}->{multiverseId};
-
-        #    # still use the MCI code for the filename, if possible
-        #    $card_data->{localSmImgURL} = ($mci_num && $mci_set) ?
-        #        sprintf('img/small/%s-%s.jpg', lc $mci_set, lc $mci_num) :
-        #        sprintf('img/small/multi-%u.jpg', $card_data->{identifiers}->{multiverseId})
-        #    ;
-        # }
-        # else {
-        #     warn Dumper $card_data->{identifiers};
-        #    warn "Could not find MultiverseID for '$name'!\n";
-        # }
-
-        # Unfortunate manual additions/corrections for images
-        #$card_data->{localLgImgURL} = $card_data->{localSmImgURL} if $name eq 'Path of Ancestry';
+        if ($mci_num && $mci_set) {
+            $card_data->{infoURL}       = sprintf 'http://scryfall.com/card/%s/%s',      lc $mci_set, lc $mci_num;
+            $card_data->{localLgImgURL} = sprintf 'img/large/%s-%s.jpg',                       lc $mci_set, lc $mci_num;
+            $card_data->{localSmImgURL} = sprintf 'img/small/%s-%s.jpg',                       lc $mci_set, lc $mci_num;
+        }
+        else {
+            warn "Could not find MCI number for '$name'!\n" unless $mci_num;
+            warn "Could not find MCI set for '$name'!\n"    unless $mci_set;
+        }
     }
 }
 
@@ -423,53 +412,21 @@ foreach my $name (sort keys %LAND_DATA) {
     }
 }
 
-### Download images
+### Creating download images file
 
-# say "Downloading images...";
+say "Creating download images file...";
 
-# foreach my $name (sort keys %LAND_DATA) {
-#     my $land_data = $LAND_DATA{$name};
+my $filename = "$BASE_DIR/TEMP_IMAGE_DOWNLOAD_LIST.txt";
 
-#     my $tried_to_download = 0;
-#     foreach my $prefix (qw/ lg sm /) {
-#         my $local_url  = $land_data->{'local'.ucfirst($prefix).'ImgURL'};
-#         my $remote_url = $land_data->{"${prefix}ImageURL"};
-#         next unless $local_url && $remote_url;
+open my $jpeg_fh, '>', $filename or die "Can't open $filename: $!";
 
-#         my $filename = "$BASE_DIR/$local_url";
-#         next if -s $filename;
+foreach my $name (sort keys %LAND_DATA) {
+    my $land_data = $LAND_DATA{$name};
 
-#         $tried_to_download = 1;
-#         printf "    %-50s", $remote_url;
-#         my $req = HTTP::Request->new(GET => $remote_url);
-#         my $res = $ua->request($req);
+    printf $jpeg_fh "%s %s %s\n", $land_data->{identifiers}->{scryfallId}, $land_data->{localLgImgURL}, $land_data->{localSmImgURL};
+}
 
-#         if ($res->is_success) {
-#             print " => $filename";
-
-#             open my $jpeg_fh, '>', $filename or die "Can't open $filename: $!";
-#             print $jpeg_fh $res->content;
-#             close $jpeg_fh;
-#             chmodown($filename);
-
-#             print "\n";
-#         }
-#         else {
-#             print "\n";
-#             warn "Can't download $remote_url: ".$res->status_line."\n";
-
-#             # Try to use the other as an alternate
-#             if    ($prefix eq 'lg') {
-#                 $land_data->{'localLgImgURL'} = $land_data->{'localSmImgURL'};
-#             }
-#             elsif ($prefix eq 'sm') {
-#                 $land_data->{'localSmImgURL'} = $land_data->{'localLgImgURL'};
-#             }
-#         }
-#     }
-
-#     sleep 1 if $tried_to_download;  # try to be a friendly spider
-# }
+close $jpeg_fh;
 
 ### Build HTML pages based on the lesser categories, with the Main categories looped on each page
 
