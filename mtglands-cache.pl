@@ -200,32 +200,30 @@ foreach my $set (
         # Mark any new cards
         $card_data->{isNew} =
             $set_data->{releaseDate} >= (time - 365 * 24*60*60) &&  # released at most a year ago
-            scalar @{$card_data->{printings}} == 1                       # only in this set
+            scalar @{$card_data->{printings}} == 1                  # only in this set
             ? 1 : 0
         ;
 
-        #$card_data->{scryfallId} = $card_data->{identifiers}->{scryfallId};
-
         # scryfall.com is our base source for large images and URLs
-        my $mci_num = $card_data->{number};
-        my $mci_set = $set_data->{code};
+        my $card_num = $card_data->{number};
+        my $card_set = $set_data->{code};
 
-        # ensure mci_num only contains valid characters (can contin '*')
-        if ($mci_num =~ /([0-9a-zA-Z]+)/g) {
-            $mci_num = $1;
+        # ensure card_num only contains valid characters (can contin '*')
+        if ($card_num =~ /([0-9a-zA-Z]+)/g) {
+            $card_num = $1;
         }
         else {
-            warn "Invalid number '$mci_num'!\n";
+            warn "Invalid number '$card_num'!\n";
         }
 
-        if ($mci_num && $mci_set) {
-            $card_data->{infoURL}       = sprintf 'http://scryfall.com/card/%s/%s',      lc $mci_set, lc $mci_num;
-            $card_data->{localLgImgURL} = sprintf 'img/large/%s-%s.jpg',                       lc $mci_set, lc $mci_num;
-            $card_data->{localSmImgURL} = sprintf 'img/small/%s-%s.jpg',                       lc $mci_set, lc $mci_num;
+        if ($card_num && $card_set) {
+            $card_data->{infoURL}       = sprintf 'http://scryfall.com/card/%s/%s', lc $card_set, lc $card_num;
+            $card_data->{localLgImgURL} = sprintf 'img/large/%s-%s.jpg',            lc $card_set, lc $card_num;
+            $card_data->{localSmImgURL} = sprintf 'img/small/%s-%s.jpg',            lc $card_set, lc $card_num;
         }
         else {
-            warn "Could not find MCI number for '$name'!\n" unless $mci_num;
-            warn "Could not find MCI set for '$name'!\n"    unless $mci_set;
+            warn "Could not find card number for '$name'!\n" unless $card_num;
+            warn "Could not find card set for '$name'!\n"    unless $card_set;
         }
     }
 }
@@ -676,7 +674,7 @@ END_HTML
     Legality: <select name="legal">
         <option value="all" selected>All cards</option>
 END_HTML
-    foreach my $format (qw/Vintage Commander Legacy Modern Standard/) {
+    foreach my $format (qw/Vintage Commander Legacy Modern Standard Brawl Pioneer/) {
         my $F = substr($format, 0, 1);
         $html .= "        <option value=\"$F\">Legal in $format</option>\n";
     }
