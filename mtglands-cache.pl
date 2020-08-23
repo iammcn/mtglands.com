@@ -163,10 +163,6 @@ foreach my $set (
         #    warn Dumper $set_data;
         #}
 
-        # Unfortunate manual additions/corrections
-        #$card_data->{mciNumber} = 315 if $name eq "Teferi's Isle";
-        #$card_data->{mciNumber} =~ s!.+/(\d\w*)$!$1! if $card_data->{mciNumber} && $card_data->{mciNumber} =~ m!/!;
-
         # Extra data to add
         $card_data->{setData} = $set_data;
         weaken $card_data->{setData};
