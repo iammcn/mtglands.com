@@ -204,7 +204,7 @@ Main:
 
     Futuresight Duals:
         # I hate using names for these, but they are so wildly different.
-        name_re: '^(?:Grove of the Burnwillows|Nimbus Maze|River of Tears)$'
+        name_re: '^(?:Horizon Canopy|Grove of the Burnwillows|Nimbus Maze|River of Tears|Graven Cairns)$'
         tags:
             Mana Pool: Dual Colors
 
@@ -366,9 +366,17 @@ Main:
 
     Castle Lands:
         example: Castle Ardenvale
-        # Why isn't Castle Vantress showing up? Ugh
         text_re: >-
             \A⦀name⦀ enters the battlefield tapped unless you control an? (?:Plains|Island|Mountain|Forest|Swamp)\.\R\{T\}\: Add \{[WURGB]\}\.\R\{[12]\}\{[WURGB]\}
+
+    Memorial Lands:
+        example: Memorial to Genius
+        text_re: >-
+            \A⦀name⦀ enters the battlefield tapped\.\R\{T\}\: Add \{[WURGB]\}\.\R\{[234]\}\{[WURGB]\}\, \{T\}\, Sacrifice ⦀name⦀\:
+
+    Sac Mono Lands:
+        example: Svyelunite Temple
+        colorIdStr_re: '^\w{1}$'
 
     Basic Typed Lands:
         matching:
