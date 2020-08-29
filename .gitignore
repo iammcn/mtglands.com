@@ -6,3 +6,4 @@ obj/
 *.csproj.user
 .suo
 DesignTimeBuild/
+TEMP_IMAGE_DOWNLOAD_LIST.txt
