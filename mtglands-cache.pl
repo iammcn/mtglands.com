@@ -143,14 +143,18 @@ foreach my $set (
 
     # almost all of these had paper analogues
     next if $set_data->{isOnlineOnly} && $set_data->{isOnlineOnly} eq 'true';
+    next if $set_data->{isFoilOnly} && $set_data->{isFoilOnly} eq 'true';
 
     # none of the playtest cards
     next if $set_data->{code} eq 'CMB1';
+    # no cards from Shandalar
+    next if $set_data->{code} eq 'PAST';
 
     foreach my $card_data (@{ $set_data->{cards} }) {
         next unless first { $_ eq 'Land' } @{$card_data->{types}};  # only interested in lands
         next if $card_data->{rarity} eq 'Special';                  # only interested in legal cards
         next if $card_data->{borderColor} eq 'silver';              # no Un-sets
+        next if $card_data->{borderColor} eq 'gold';                # don't show gold border prints
 
         my $name = $card_data->{name};
         next if $LAND_DATA{$name};  # only add in the most recent entry
@@ -417,7 +421,17 @@ open my $jpeg_fh, '>', $filename or die "Can't open $filename: $!";
 foreach my $name (sort keys %LAND_DATA) {
     my $land_data = $LAND_DATA{$name};
 
-    printf $jpeg_fh "%s %s %s\n", $land_data->{identifiers}->{scryfallId}, $land_data->{localLgImgURL}, $land_data->{localSmImgURL};
+    my $isTransformCard = "false";
+    if ($land_data->{otherFaceIds}) {
+        $isTransformCard = "true";
+    }
+
+    # unfortunate custom code for meld land
+    if ($land_data->{name} eq "Hanweir Battlements // Hanweir, the Writhing Township") {
+        $isTransformCard = "false";
+    }
+
+    printf $jpeg_fh "%s %s %s %s\n", $land_data->{identifiers}->{scryfallId}, $land_data->{localLgImgURL}, $land_data->{localSmImgURL}, $isTransformCard;
 }
 
 close $jpeg_fh;

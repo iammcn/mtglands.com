@@ -52,6 +52,7 @@ namespace MtgLands_CreateEverything
 
         static void GetImagesFromScryFall(string rootPath)
         {
+            Console.WriteLine("Getting Images From ScryFall...");
             //https://api.scryfall.com/cards/{guid}?format=image&version=normal
             var webClient = new System.Net.WebClient();
 
@@ -70,23 +71,30 @@ namespace MtgLands_CreateEverything
 
                     var split = line.Split(' ');
 
-                    var guid = split[0];
-                    var largeFileName = split[1];
-                    var smallFileName = split[2];
+                    (string guid, string largeFileName, string smallFileName, string isTransformCard) = (split[0], split[1], split[2], split[3]);
+
+                    var getCardBack = "";
+                    if (isTransformCard == "true")
+					{
+                        getCardBack = "&face=back";
+                    }
+
                     {
-                        var uri = new Uri($"https://api.scryfall.com/cards/{guid}?format=image&version=large");
+                        //https://c1.scryfall.com/file/scryfall-cards/png/front/c/4/c4ac7570-e74e-4081-ac53-cf41e695b7eb.png?1562563598
+                        //https://api.scryfall.com/cards/c4ac7570-e74e-4081-ac53-cf41e695b7eb?format=image&version=large&face=back
                         var filePath = Path.Combine(rootPath, largeFileName);
                         if (!File.Exists(filePath))
                         {
+                            var uri = new Uri($"https://api.scryfall.com/cards/{guid}?format=image&version=large{getCardBack}");
                             webClient.DownloadFile(uri, filePath);
                             System.Threading.Thread.Sleep(100);
                         }
                     }
                     {
-                        var uri = new Uri($"https://api.scryfall.com/cards/{guid}?format=image&version=normal");
                         var filePath = Path.Combine(rootPath, smallFileName);
                         if (!File.Exists(filePath))
                         {
+                            var uri = new Uri($"https://api.scryfall.com/cards/{guid}?format=image&version=normal{getCardBack}");
                             webClient.DownloadFile(uri, filePath);
                             System.Threading.Thread.Sleep(100);
                         }
