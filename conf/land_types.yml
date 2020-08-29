@@ -294,11 +294,7 @@ Main:
 
     Hideaways:
         example: Shelldock Isle
-        text_re: >-
-            \AHideaway \(This land enters the battlefield tapped\. When it does\, look at the top four
-            cards of your library\, exile one face down\, then put the rest on the bottom of your
-            library\.\)\R\{T\}\: Add \{[WURGB]\}\.\R\{[WURGB]\}\, \{T\}\: You may play
-            the exiled card without paying its mana cost if.+
+        text_re: 'Hideaway'
 
     Keyword Lands:
         alt_names:
@@ -485,7 +481,7 @@ Mana Pool:
 
 Other:
     ETB Tapped:
-        text_re: '(?<!, )⦀name⦀ enters the battlefield tapped\.'
+        text_re: '(?<!, )⦀name⦀ enters the battlefield tapped\.|Hideaway'
 
     Fetches:
         text_re: 'Search your library'
