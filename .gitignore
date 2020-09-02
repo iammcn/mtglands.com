@@ -7,3 +7,4 @@ obj/
 .suo
 DesignTimeBuild/
 TEMP_IMAGE_DOWNLOAD_LIST.txt
+Properties/

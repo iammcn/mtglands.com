@@ -11,16 +11,15 @@ namespace MtgLands_CreateEverything
     {
         static void Main(string[] args)
         {
-            var perlPath = @"C:\Perl\Strawberry\perl\bin\";
-            var rootPath = @"C:\Users\foneb\OneDrive\Documents\mtglands.com\";
+            var rootPath = args[0];
 
-            if (Directory.Exists(perlPath) && Directory.Exists(rootPath))
+            if (Directory.Exists(rootPath))
             {
                 var proc = new Process();
                 proc.StartInfo = new ProcessStartInfo()
                 {
-                    FileName = $"{perlPath}perl.exe",
-                    Arguments = $"{rootPath}mtglands-cache.pl",
+                    FileName = "perl.exe",
+                    Arguments = Path.Combine(rootPath, "mtglands-cache.pl"),
                     WorkingDirectory = rootPath
                 };
 
