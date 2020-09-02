@@ -45,7 +45,7 @@ namespace MtgLands_CreateEverything
             }
             else
 			{
-                Console.Error.WriteLine($"Could not find perl: {perlPath}");
+                Console.Error.WriteLine($"Could not find root path: {rootPath}");
 			}
         }
 

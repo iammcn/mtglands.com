@@ -30,6 +30,12 @@ Main:
         tags:
             Mana Pool: Dual Colors
 
+    Choice Dual:
+        example: Needleverge Pathway // Pillarverge Pathway
+        type_re: '^Land$'
+        tags:
+            Mana Pool: Dual Colors
+
     Manaless Filters:
         example: Darkwater Catacombs
         tags:
