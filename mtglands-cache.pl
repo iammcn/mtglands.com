@@ -142,8 +142,11 @@ foreach my $set (
     my $set_data = $MTG_DATA{$set};
 
     # almost all of these had paper analogues
-    next if $set_data->{isOnlineOnly} && $set_data->{isOnlineOnly} eq 'true';
-    next if $set_data->{isFoilOnly} && $set_data->{isFoilOnly} eq 'true';
+    next if $set_data->{isOnlineOnly} && $set_data->{isOnlineOnly} eq 1;
+    next if $set_data->{isFoilOnly} && $set_data->{isFoilOnly} eq 1;
+
+    # exclude promo sets
+    next if $set_data->{type} eq 'promo';
 
     # none of the playtest cards
     next if $set_data->{code} eq 'CMB1';
