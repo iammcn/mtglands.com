@@ -333,9 +333,13 @@ Main:
         example: Coral Atoll
         alt_names:
             - Karoos
+        tags:
+            Mana Pool: Monocolor
 
     Mono Depletions Lands:
         example: Saprazzan Skerry
+        tags:
+            Mana Pool: Monocolor
 
     Mono Storage Lands:
         matching:
@@ -350,11 +354,15 @@ Main:
         example: Faerie Conclave
         text_re: >-
             \A⦀name⦀ enters the battlefield tapped\.\R\{T\}\: Add \{[WURGB]\}\.\R\{1\}\{[WURGB]\}\: ⦀name⦀ becomes.+
+        tags:
+            Mana Pool: Monocolor
 
     Perm Type Legendaries:
         example: Tolarian Academy
         text_re: '\A\{T\}\: Add \{[WURGB]\} for each .+ you control\.\z'
         type_re: Legendary
+        tags:
+            Mana Pool: Monocolor
 
     Perm Utility Lands:
         example: Moonring Island
@@ -365,20 +373,28 @@ Main:
         type_re: 'Plains|Island|Mountain|Forest|Swamp'
         alt_names:
             - Shadowmoor Utility Lands
+        tags:
+            Mana Pool: Monocolor
 
     Castle Lands:
         example: Castle Ardenvale
         text_re: >-
             \A⦀name⦀ enters the battlefield tapped unless you control an? (?:Plains|Island|Mountain|Forest|Swamp)\.\R\{T\}\: Add \{[WURGB]\}\.\R\{[12]\}\{[WURGB]\}
+        tags:
+            Mana Pool: Monocolor
 
     Memorial Lands:
         example: Memorial to Genius
         text_re: >-
             \A⦀name⦀ enters the battlefield tapped\.\R\{T\}\: Add \{[WURGB]\}\.\R\{[234]\}\{[WURGB]\}\, \{T\}\, Sacrifice ⦀name⦀\:
+        tags:
+            Mana Pool: Monocolor
 
     Sac Mono Lands:
         example: Svyelunite Temple
         colorIdStr_re: '^\w{1}$'
+        tags:
+            Mana Pool: Monocolor
 
     Basic Typed Lands:
         matching:
@@ -392,17 +408,23 @@ Main:
             \AIf ⦀name⦀ would enter the battlefield\, sacrifice an? (?:untapped )?(?:Plains|Island|Mountain|Forest|Swamp)
             instead\. If you do\, put ⦀name⦀ onto the battlefield\. If you don\'t\, put it into its owner\'s
             graveyard\.\R\{T\}\: Add [\{\}WURGBC]*\{[WURGB]\}\.\R.+
+        tags:
+            Mana Pool: Monocolor
 
     Sac Desert:
         example: Ipnu Rivulet
         text_re: >-
             \A\{T\}\: Add \{C\}\.\R\{T\}\, Pay 1 life\: Add \{[WURGB]\}\.\R\{\d\}(?:\{[WURGB]\})+\, \{T\}\, Sacrifice a Desert\: .+
+        tags:
+            Mana Pool: Monocolor
 
     Threshold Lands:
         example: Cephalid Coliseum
         text_re: >-
             \A\{T\}\: Add \{[WURGB]\}\. ⦀name⦀ deals 1 damage to you\.\RThreshold \—
             \{[WURGB]\}\, \{T\}\, Sacrifice ⦀name⦀\:.+
+        tags:
+            Mana Pool: Monocolor
 
     # Special colorless lands
     Blighted Lands:
