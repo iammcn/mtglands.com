@@ -429,8 +429,9 @@ foreach my $name (sort keys %LAND_DATA) {
         $isTransformCard = "true";
     }
 
-    # unfortunate custom code for meld land
-    if ($land_data->{name} eq "Hanweir Battlements // Hanweir, the Writhing Township") {
+    # unfortunate custom code for meld land and transform into creature land
+    if ($land_data->{name} eq "Hanweir Battlements // Hanweir, the Writhing Township"
+        || $land_data->{name} eq "Westvale Abbey // Ormendahl, Profane Prince") {
         $isTransformCard = "false";
     }
 
