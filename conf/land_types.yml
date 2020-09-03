@@ -508,8 +508,12 @@ Mana Pool:
             - text_re: 'Activate this ability only if'
 
 Other:
+    #ETB Tapped/Untapped are a little flawed at the momement, where should conditional (e.g. Shock Lands) ones go?
     ETB Tapped:
-        text_re: '(?<!, )⦀name⦀ enters the battlefield tapped\.|Hideaway'
+        text_re: '(?<!, )⦀name⦀ enters the battlefield tapped|Hideaway'
+
+    ETB Untapped:
+        text_re_neg: '(?<!, )⦀name⦀ enters the battlefield tapped|Hideaway'
 
     Fetches:
         text_re: 'Search your library'
