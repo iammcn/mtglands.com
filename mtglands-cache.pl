@@ -5,6 +5,7 @@ use v5.10;
 use strict;
 use warnings;
 
+use Config;
 use Date::Parse;
 use Data::Dumper;
 use File::Copy;
@@ -29,7 +30,7 @@ binmode(STDERR, ":utf8");
 ##################################################################################################
 
 ### XXX: This is a (slight) security risk.  Move these outta here...
-my $BASE_DIR  = '.';
+my $BASE_DIR  = $ARGV[0];
 my $WWW_CHOWN = 'www-data:www-data';
 my $WWW_CHMOD = 0660;
 
@@ -420,7 +421,7 @@ foreach my $name (sort keys %LAND_DATA) {
 
 say "Creating download images file...";
 
-my $filename = "$BASE_DIR/TEMP_IMAGE_DOWNLOAD_LIST.txt";
+my $filename = "$BASE_DIR/img/TEMP_IMAGE_DOWNLOAD_LIST.txt";
 
 open my $jpeg_fh, '>', $filename or die "Can't open $filename: $!";
 
@@ -530,14 +531,16 @@ exit;
 ##################################################################################################
 
 sub chmodown {
-    # excluded because Windows
-    #my ($filename) = @_;
-    #my ($uid, $gid) = split /:/, $WWW_CHOWN, 2;
-    #$uid = getpwnam($uid);
-    #$gid = getgrnam($gid);
+    # don't need to do this in windows
+    if (not $Config{'osname'} eq 'MSWin32') {
+        my ($filename) = @_;
+        my ($uid, $gid) = split /:/, $WWW_CHOWN, 2;
+        $uid = getpwnam($uid);
+        $gid = getgrnam($gid);
 
-    #chmod $WWW_CHMOD, $filename or die "Can't chmod $filename: $!";
-    #chown $uid, $gid, $filename or die "Can't chown $filename: $!";
+        chmod $WWW_CHMOD, $filename or die "Can't chmod $filename: $!";
+        chown $uid, $gid, $filename or die "Can't chown $filename: $!";
+    }
 }
 
 sub sort_mpg_avg {
