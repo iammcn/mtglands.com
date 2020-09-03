@@ -30,7 +30,7 @@ Main:
         tags:
             Mana Pool: Dual Colors
 
-    Choice Dual:
+    Modal Dual:
         example: Needleverge Pathway // Pillarverge Pathway
         type_re: '^Land$'
         tags:
@@ -324,10 +324,17 @@ Main:
         text_re: '\A\{T\}\: Add \{[WURGB]\}\.\R\{[WURGB]\}\, \{T\}\: .+legendary.+\z'
         type_re: Legendary
 
-    # These are the second halves of transform enchantments, but they are still worth cataloging
+    # These are the second halves of transform enchantments/artifacts, but they are still worth cataloging
     Transformers:
-        example: Azcanta, the Sunken Ruin
-        text_re: '\A\(Transforms from .+\.\)\R'
+        #example: "Search for Azcanta // Azcanta, the Sunken Ruin" # can't use an example with this for some reason
+        layout_re: transform
+        
+    Mono Modal Lands:
+        #example: Valakut Awakening // Valakut Stoneforge # can't use an example with this for some reason
+        convertedManaCost_re: '^[123456789]$'
+        layout_re: modal_dfc
+        tags:
+            Mana Pool: Monocolor
 
     Mono Bounces:
         example: Coral Atoll
