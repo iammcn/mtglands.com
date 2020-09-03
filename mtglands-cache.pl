@@ -152,6 +152,9 @@ foreach my $set (
     next if $set_data->{code} eq 'CMB1';
     # no cards from Shandalar
     next if $set_data->{code} eq 'PAST';
+    # no Secret Lairs
+    next if $set_data->{code} eq 'SLD';
+    next if $set_data->{code} eq 'SLU';
 
     foreach my $card_data (@{ $set_data->{cards} }) {
         next unless first { $_ eq 'Land' } @{$card_data->{types}};  # only interested in lands
