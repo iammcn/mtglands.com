@@ -1,9 +1,6 @@
-﻿using Cooper.Magic.ScryFall;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
-using RestSharp;
-using Newtonsoft.Json;
 
 namespace MtgLands_CreateEverything
 {
@@ -46,7 +43,7 @@ namespace MtgLands_CreateEverything
                     }
                 }
 
-                GetImagesFromScryFall(wwwPath);
+                GetImagesFromScryfall(wwwPath);
             }
             else
 			{
@@ -74,9 +71,9 @@ namespace MtgLands_CreateEverything
             File.Copy(Path.Combine(rootPath, "style", "mana.css"), Path.Combine(wwwPath, "style", "mana.css"), true);
         }
 
-        static void GetImagesFromScryFall(string wwwPath)
+        static void GetImagesFromScryfall(string wwwPath)
         {
-            Console.WriteLine("Getting Images From ScryFall...");
+            Console.WriteLine("Getting Images From Scryfall...");
             //https://api.scryfall.com/cards/{guid}?format=image&version=normal
             var webClient = new System.Net.WebClient();
 
